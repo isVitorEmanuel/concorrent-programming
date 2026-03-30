@@ -1,6 +1,4 @@
-package module1.TheaterTicket.WithVirtualThreadsWithError.tickets;
-
-import java.util.concurrent.atomic.AtomicInteger;
+package module1.TheaterTicket.WithVirtualThreadsNoError.tickets;
 
 /**
  * @class Ticket
@@ -10,17 +8,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Vitor Emanuel
  * @version 1.0
  */
-public class TicketWithAtomic {
+public class TicketWithSincronized {
 
     /** @brief The current counter value for available tickets. */
-    private AtomicInteger value;
+    private int value;
 
     /**
      * @brief Constructor for the Ticket class.
      * @param value The initial capacity of theater tickets.
      */
-    public TicketWithAtomic(int value) {
-        this.value = new AtomicInteger(value);
+    public TicketWithSincronized(int value) {
+        this.value = value;
     }
 
     /**
@@ -31,7 +29,7 @@ public class TicketWithAtomic {
      * which may lead to duplicate ticket numbers in concurrent environments.
      * @return The ticket number captured by the participant.
      */
-    public int getTicket() {
-        return this.value.getAndDecrement();
+    public synchronized int getTicket() {
+        return this.value--;
     }
 }
