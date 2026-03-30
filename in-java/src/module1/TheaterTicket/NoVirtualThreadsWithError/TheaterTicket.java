@@ -1,4 +1,4 @@
-package module1.TheaterTicket;
+package module1.TheaterTicket.NoVirtualThreadsWithError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
