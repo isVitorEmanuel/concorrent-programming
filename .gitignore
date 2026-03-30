@@ -1,9 +1,12 @@
 ### IntelliJ IDEA ###
-out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .idea/
 .idea
+
+# Pastas de compilação
+out/
+in-java/out/
 
 ### Eclipse ###
 .apt_generated
