@@ -1,4 +1,4 @@
-package module1.TheaterTicket.WithVirtualThreadsWithError;
+package module1.TheaterTicket.WithVirtualThreadsNoError;
 
 /**
  * @class Ticket

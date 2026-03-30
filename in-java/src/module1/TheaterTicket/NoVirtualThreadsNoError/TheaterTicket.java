@@ -1,6 +1,5 @@
 package module1.TheaterTicket.NoVirtualThreadsNoError;
 
-import module1.TheaterTicket.NoVirtualThreadsNoError.tickets.TicketWithAtomic;
 import module1.TheaterTicket.NoVirtualThreadsNoError.tickets.TicketWithSincronized;
 
 import java.util.ArrayList;

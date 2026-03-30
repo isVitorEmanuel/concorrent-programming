@@ -1,6 +1,4 @@
-package module1.TheaterTicket.WithVirtualThreadsWithError;
-
-import module1.TheaterTicket.NoVirtualThreadsNoError.tickets.TicketWithAtomic;
+package module1.TheaterTicket.WithVirtualThreadsNoError;
 
 /**
  * @class Participant
@@ -13,7 +11,7 @@ import module1.TheaterTicket.NoVirtualThreadsNoError.tickets.TicketWithAtomic;
 public class Participant extends Thread {
 
     /** @brief Reference to the shared Ticket resource. */
-    private final TicketWithAtomic count;
+    private final Ticket count;
 
     /** @brief The ticket number successfully acquired by this participant. */
     private int number;
@@ -23,7 +21,7 @@ public class Participant extends Thread {
      * @param count The shared Ticket object to interact with.
      * @param name The name of the thread (participant identifier).
      */
-    public Participant (TicketWithAtomic count, String name) {
+    public Participant (Ticket count, String name) {
         super(name);
         this.count = count;
     }

@@ -1,6 +1,4 @@
-package module1.TheaterTicket.WithVirtualThreadsWithError;
-
-import module1.TheaterTicket.NoVirtualThreadsNoError.tickets.TicketWithAtomic;
+package module1.TheaterTicket.WithVirtualThreadsNoError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,8 +57,8 @@ public class TheaterTicket {
      * @return A list of all Participant instances after execution.
      */
     private static List<Participant> getParticipants() {
-        final int TOTAL_TICKETS = 1000000;
-        TicketWithAtomic ticket = new TicketWithAtomic(TOTAL_TICKETS);
+        final int TOTAL_TICKETS = 100000;
+        Ticket ticket = new Ticket(TOTAL_TICKETS);
         List<Participant> participants = new ArrayList<>();
 
         for (int i = 0; i < TOTAL_TICKETS; i++) {
