@@ -1,7 +1,8 @@
 package module1.KNN.Serial;
 
+import module1.KNN.DataSetGenerator;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * @class RunSerial
@@ -11,24 +12,33 @@ import java.util.Arrays;
  * to handle large datasets (e.g., 1GB) without exceeding memory limits.
  */
 public class RunSerial {
+
     /**
      * @brief Main execution method.
      * This method defines the dataset path, creates the target point to be classified,
      * and measures the flow of the serial KNN prediction.
-     * * @param args Command line arguments (not used).
+     * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
-        String path = "dataset_1gb.csv";
+        String path = "dataset_high_dim.csv";
 
-        ArrayList<Integer> targetValues = new ArrayList<>(Arrays.asList(500, 500, 500));
-        Neighbor target = new Neighbor(targetValues, "Unknow");
+        int numFeatures = DataSetGenerator.NUM_FEATURES;
+        ArrayList<Double> targetValues = new ArrayList<>();
+        for (int i = 0; i < numFeatures; i++) {
+            targetValues.add(500.0);
+        }
+        Neighbor target = new Neighbor(targetValues, "Unknown");
 
         KNNSerial knn = new KNNSerial();
-        int k = 3;
+        int k = 21;
 
-        System.out.println(">>> init prediction...");
+        System.out.println(">>> starting prediction...");
+        long startTime = System.currentTimeMillis();
+
         String result = knn.predictStream(path, target, k);
 
-        System.out.println("predict class: " + result);
+        long elapsed = System.currentTimeMillis() - startTime;
+        System.out.println(">>> predicted class: " + result);
+        System.out.printf(">>> time elapsed: %.2f seconds%n", elapsed / 1000.0);
     }
 }

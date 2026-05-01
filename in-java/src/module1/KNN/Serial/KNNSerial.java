@@ -48,19 +48,32 @@ public class KNNSerial {
     /**
      * @brief Performs KNN prediction using a stream-based approach to save memory.
      * Processes the file line by line without loading the full dataset into RAM.
+     * Skips the CSV header line automatically.
      * @param filePath Path to the CSV dataset.
      * @param target The point to be classified.
      * @param k The number of nearest neighbors to consider.
-     * @return The predicted label (String).
+     * @return The predicted label (String), or "Unknown" if prediction fails.
      */
     public String predictStream(String filePath, Neighbor target, int k) {
         PriorityQueue<DistanceRecord> pq = new PriorityQueue<>(Collections.reverseOrder());
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
+            boolean firstLine = true;
+
             while ((line = br.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false;
+                    continue;
+                }
+
                 Neighbor current = parseLineToNeighbor(line);
                 if (current == null) continue;
+
+                if (current.getValues().size() != target.getValues().size()) {
+                    System.err.println("warning: dimension mismatch, skipping line.");
+                    continue;
+                }
 
                 double dist = calculateEuclideanDistance(target, current);
                 pq.add(new DistanceRecord(current, dist));
@@ -70,7 +83,12 @@ public class KNNSerial {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro ao ler o ficheiro no Stream: " + e.getMessage());
+            System.err.println("error reading file (stream): " + e.getMessage());
+        }
+
+        if (pq.isEmpty()) {
+            System.err.println("error: no valid neighbors found. Check dataset and target dimensions.");
+            return "Unknown";
         }
 
         Map<String, Integer> labelFrequencies = new HashMap<>();
@@ -84,18 +102,35 @@ public class KNNSerial {
 
     /**
      * @brief Performs KNN prediction by loading the entire dataset into RAM.
+     * WARNING: Not recommended for large datasets (e.g., 1GB files) as it may
+     * cause OutOfMemoryError. Use predictStream() for large files instead.
      * @param filePath Path to the CSV dataset.
      * @param target The point to be classified.
      * @param k The number of nearest neighbors to consider.
-     * @return The predicted label (String).
+     * @return The predicted label (String), or "Unknown" if prediction fails.
      */
     public String predict(String filePath, Neighbor target, int k) {
         List<Neighbor> dataset = readDataset(filePath);
+
+        if (dataset.isEmpty()) {
+            System.err.println("error: dataset is empty or could not be read.");
+            return "Unknown";
+        }
+
         List<DistanceRecord> distances = new ArrayList<>();
 
         for (Neighbor dataPoint : dataset) {
+            if (dataPoint.getValues().size() != target.getValues().size()) {
+                System.err.println("warning: dimension mismatch, skipping point.");
+                continue;
+            }
             double dist = calculateEuclideanDistance(target, dataPoint);
             distances.add(new DistanceRecord(dataPoint, dist));
+        }
+
+        if (distances.isEmpty()) {
+            System.err.println("error: no valid neighbors found. Check dataset and target dimensions.");
+            return "Unknown";
         }
 
         Collections.sort(distances);
@@ -111,14 +146,15 @@ public class KNNSerial {
 
     /**
      * @brief Calculates the Euclidean Distance between two neighbors.
+     * Both neighbors must have the same number of dimensions.
      * @param target The target neighbor point.
      * @param dataPoint The reference neighbor point from the dataset.
      * @return The double value of the Euclidean distance.
      */
     private double calculateEuclideanDistance(Neighbor target, Neighbor dataPoint) {
         double sum = 0.0;
-        ArrayList<Integer> targetValues = target.getValues();
-        ArrayList<Integer> dataValues = dataPoint.getValues();
+        ArrayList<Double> targetValues = target.getValues();
+        ArrayList<Double> dataValues = dataPoint.getValues();
 
         for (int i = 0; i < targetValues.size(); i++) {
             double diff = targetValues.get(i) - dataValues.get(i);
@@ -129,6 +165,8 @@ public class KNNSerial {
 
     /**
      * @brief Helper method to parse a CSV line into a Neighbor object.
+     * Expects all feature columns to be parseable as doubles, and the
+     * last column to be the label string.
      * @param line A single line from the CSV file.
      * @return A Neighbor object or null if the line is malformed.
      */
@@ -136,10 +174,10 @@ public class KNNSerial {
         String[] parts = line.split(",");
         if (parts.length < 2) return null;
 
-        ArrayList<Integer> values = new ArrayList<>();
+        ArrayList<Double> values = new ArrayList<>();
         try {
             for (int i = 0; i < parts.length - 1; i++) {
-                values.add(Integer.parseInt(parts[i].trim()));
+                values.add(Double.parseDouble(parts[i].trim()));
             }
             return new Neighbor(values, parts[parts.length - 1].trim());
         } catch (NumberFormatException e) {
@@ -149,6 +187,8 @@ public class KNNSerial {
 
     /**
      * @brief Reads the dataset from a file and returns a list of neighbors.
+     * Skips the CSV header line automatically.
+     * WARNING: Loads the entire dataset into memory. For large files, use predictStream().
      * @param path Path to the CSV file.
      * @return A List of Neighbor objects.
      */
@@ -156,14 +196,21 @@ public class KNNSerial {
         List<Neighbor> dataset = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             String line;
+            boolean firstLine = true;
+
             while ((line = br.readLine()) != null) {
+                // FIX: skip the CSV header line
+                if (firstLine) {
+                    firstLine = false;
+                    continue;
+                }
                 Neighbor current = parseLineToNeighbor(line);
                 if (current != null) {
                     dataset.add(current);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro ao ler o ficheiro: " + e.getMessage());
+            System.err.println("error reading file: " + e.getMessage());
         }
         return dataset;
     }

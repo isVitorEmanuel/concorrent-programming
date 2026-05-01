@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class Neighbor {
 
     /** @brief Internal storage for the numerical features of the data point. */
-    private final ArrayList<Integer> values;
+    private final ArrayList<Double> values;
     /** @brief The classification category or class name assigned to this point. */
     private final String label;
 
@@ -20,7 +20,7 @@ public class Neighbor {
      * @param values An ArrayList of integers representing the point's coordinates or features.
      * @param label A String representing the class or category of this data point.
      */
-    public Neighbor(ArrayList<Integer> values,  String label) {
+    public Neighbor(ArrayList<Double> values,  String label) {
         this.values  = values;
         this.label = label;
     }
@@ -29,7 +29,7 @@ public class Neighbor {
      * @brief Retrieves the numerical features of the neighbor.
      * @return An ArrayList containing the integer values of the point.
      */
-    public ArrayList<Integer> getValues() { return values; }
+    public ArrayList<Double> getValues() { return values; }
 
     /**
      * @brief Retrieves the classification label of the neighbor.
