@@ -101,50 +101,6 @@ public class KNNSerial {
     }
 
     /**
-     * @brief Performs KNN prediction by loading the entire dataset into RAM.
-     * WARNING: Not recommended for large datasets (e.g., 1GB files) as it may
-     * cause OutOfMemoryError. Use predictStream() for large files instead.
-     * @param filePath Path to the CSV dataset.
-     * @param target The point to be classified.
-     * @param k The number of nearest neighbors to consider.
-     * @return The predicted label (String), or "Unknown" if prediction fails.
-     */
-    public String predict(String filePath, Neighbor target, int k) {
-        List<Neighbor> dataset = readDataset(filePath);
-
-        if (dataset.isEmpty()) {
-            System.err.println("error: dataset is empty or could not be read.");
-            return "Unknown";
-        }
-
-        List<DistanceRecord> distances = new ArrayList<>();
-
-        for (Neighbor dataPoint : dataset) {
-            if (dataPoint.getValues().size() != target.getValues().size()) {
-                System.err.println("warning: dimension mismatch, skipping point.");
-                continue;
-            }
-            double dist = calculateEuclideanDistance(target, dataPoint);
-            distances.add(new DistanceRecord(dataPoint, dist));
-        }
-
-        if (distances.isEmpty()) {
-            System.err.println("error: no valid neighbors found. Check dataset and target dimensions.");
-            return "Unknown";
-        }
-
-        Collections.sort(distances);
-
-        Map<String, Integer> labelFrequencies = new HashMap<>();
-        for (int i = 0; i < k && i < distances.size(); i++) {
-            String label = distances.get(i).neighbor.getLabel();
-            labelFrequencies.put(label, labelFrequencies.getOrDefault(label, 0) + 1);
-        }
-
-        return Collections.max(labelFrequencies.entrySet(), Map.Entry.comparingByValue()).getKey();
-    }
-
-    /**
      * @brief Calculates the Euclidean Distance between two neighbors.
      * Both neighbors must have the same number of dimensions.
      * @param target The target neighbor point.
@@ -183,35 +139,5 @@ public class KNNSerial {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    /**
-     * @brief Reads the dataset from a file and returns a list of neighbors.
-     * Skips the CSV header line automatically.
-     * WARNING: Loads the entire dataset into memory. For large files, use predictStream().
-     * @param path Path to the CSV file.
-     * @return A List of Neighbor objects.
-     */
-    private List<Neighbor> readDataset(String path) {
-        List<Neighbor> dataset = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            boolean firstLine = true;
-
-            while ((line = br.readLine()) != null) {
-                // FIX: skip the CSV header line
-                if (firstLine) {
-                    firstLine = false;
-                    continue;
-                }
-                Neighbor current = parseLineToNeighbor(line);
-                if (current != null) {
-                    dataset.add(current);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("error reading file: " + e.getMessage());
-        }
-        return dataset;
     }
 }
